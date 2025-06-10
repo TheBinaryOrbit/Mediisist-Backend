@@ -1,0 +1,57 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model rides {
+  id          Int    @unique @default(autoincrement())
+  name        String
+  phoneNumber String
+  sessionKey  String @unique
+
+  isLocationAvail Boolean @default(false)
+  lat             String?
+  lng             String?
+
+  isCallAccepted    Boolean          @default(false)
+  customerSupportId Int?
+  callAcceptedBy    customerSupport? @relation(fields: [customerSupportId], references: [id])
+
+  isRideAcceptedBy   Boolean           @default(false)
+  ambulancePartnerId Int?
+  rideAcceptedBy     ambulancePartner? @relation(fields: [ambulancePartnerId], references: [id])
+}
+
+model customerSupport {
+  id          Int     @unique @default(autoincrement())
+  name        String
+  phoneNumber String  @unique
+  email       String
+  password    String
+  isOnline    Boolean
+  fcmToken    String?
+  rides       rides[]
+}
+
+model ambulancePartner {
+  id          Int     @unique @default(autoincrement())
+  name        String
+  phoneNumber String
+  email       String
+  password    String
+  isOnline    Boolean
+  lat         String?
+  lng         String?
+  fcmToken    String?
+  rides       rides[]
+}
