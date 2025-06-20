@@ -232,8 +232,11 @@ export const getCustomerSupportRide = async (req, res) => {
         isCallAccepted: true,
         isRideAccepted: true,
         createdAt: true,
+        isCallCompleted : true
       }
     });
+
+    console.log(ride);
 
     if (!ride) return res.status(404).json({ error: "Rides not found" });
     return res.status(200).json({
@@ -274,8 +277,6 @@ export const getAmbulancePartnerRide = async (req, res) => {
 
 export const getPendingCallsList = async (req, res) => {
   try {
-
-    console.log("hello")
     const ride = await prisma.rides.findMany({
       where: {
         isCallAccepted: false,
@@ -351,14 +352,70 @@ export const completeRideByCustomerSupport = async (req, res) => {
       },
     });
 
-    console.log(updatedRide);
-
     return res.status(200).json({
       message: "Ride Completed by customer support",
     });
   } catch (error) {
     console.error("Error accepting ride:", error);
     return res.status(500).json({ error: "Internal Server Error while accepting ride" });
+  }
+};
+
+
+export const deleteRide = async (req, res) => {
+  try {
+    const { rideId } = req.params;
+
+    if (!rideId) {
+      return res.status(400).json({ error: "Ride ID are required" });
+    }
+
+    console.log(rideId)
+
+    const ride = await prisma.rides.delete({
+      where : {
+        id : +rideId
+      }
+    })
+
+    console.log(ride);
+    if (!ride) return res.status(404).json({ error: "Ride not found" });
+
+    return res.status(200).json({
+      message: "Ride Deleted Sucessfully",
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Internal Server Error while Deleting ride" });
+  }
+};
+
+
+export const sendSmsAgain = async (req, res) => {
+  try {
+    const { rideId } = req.params;
+
+    console.log("sms sent again")
+    if (!rideId) {
+      return res.status(400).json({ error: "Ride ID are required" });
+    }
+
+    const ride = await prisma.rides.findUnique({
+      where : {
+        id : +rideId
+      }
+    })
+
+    if (!ride) return res.status(404).json({ error: "Ride not found" });
+
+    await sendMessage(ride.sessionKey , ride.phoneNumber , ride.name)
+
+    return res.status(200).json({
+      message: "Message send Sucessfully",
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Internal Server Error Sending Message" });
   }
 };
 

@@ -1,5 +1,5 @@
 import express from 'express';
-import { acceptRideByAmbulancePartner, acceptRideByCustomerSupport, addRide, completeRideByCustomerSupport, getAmbulancePartnerRide, getCustomerSupportRide, getPendingAmbulanceList, getPendingCallsList, getRideDetails, updateRideLocationBySessionKey } from '../Controller/rideControllers.js';
+import { acceptRideByAmbulancePartner, acceptRideByCustomerSupport, addRide, completeRideByCustomerSupport, deleteRide, getAmbulancePartnerRide, getCustomerSupportRide, getPendingAmbulanceList, getPendingCallsList, getRideDetails, sendSmsAgain, updateRideLocationBySessionKey } from '../Controller/rideControllers.js';
 
 export const rideRouter = express.Router();
 
@@ -30,3 +30,10 @@ rideRouter.get('/getpendingcalllist' , getPendingCallsList);
 
 // get pending Rides 
 rideRouter.get('/getpendingambulancelist' , getPendingAmbulanceList);
+
+
+// delete ride 
+rideRouter.delete('/decline/:rideId' , deleteRide)
+
+// sned sms
+rideRouter.get('/sendsms/:rideId' , sendSmsAgain)
