@@ -1,7 +1,7 @@
 import prisma from "../Utils/prismaClient.js";
 import { generateSessionKey } from '../Utils/sessionKeyGenerator.js';
-import sendMessage from "../Utils/Sendmessage.js";
-import { sentNotificationToCallSupport } from "../Utils/firebaseNotification.js";
+import sendMessage from "../Utils/SendMessage.js";
+import { sentNotificationToCallSupport, sentNotificationToAmbulancePartner } from "../Utils/firebaseNotification.js";
 
 
 export const addRide = async (req, res) => {
@@ -52,7 +52,7 @@ export const addRide = async (req, res) => {
       return res.status(500).json({ error: "Failed to generate a unique session key after multiple attempts" });
     }
 
-    sendMessage(newRide.sessionKey);
+    await sendMessage(newRide.sessionKey, phoneNumber, name);
     sentNotificationToCallSupport({ name: name, phoneNumber: phoneNumber })
 
     return res.status(201).json({
@@ -90,6 +90,8 @@ export const updateRideLocationBySessionKey = async (req, res) => {
       },
     });
 
+    sentNotificationToAmbulancePartner({ name: ride.name, phoneNumber: ride.phoneNumber, lat: ride.lat, lng: ride.lng })
+
     return res.status(200).json({
       message: "Ride location updated successfully",
       ride,
@@ -110,11 +112,13 @@ export const acceptRideByCustomerSupport = async (req, res) => {
       return res.status(400).json({ error: "Ride ID and Customer Support ID are required" });
     }
 
+    console.log(customerSupportId)
+
     const ride = await prisma.rides.findUnique({ where: { id: +rideId } });
     if (!ride) return res.status(404).json({ error: "Ride not found" });
 
     if (ride.isCallAccepted) {
-      return res.status(400).json({ error: "Ride is already accepted by another customer support" });
+      return res.status(409).json({ error: "Ride is already accepted by another customer support" });
     }
 
     const updatedRide = await prisma.rides.update({
@@ -127,7 +131,6 @@ export const acceptRideByCustomerSupport = async (req, res) => {
 
     return res.status(200).json({
       message: "Ride accepted by customer support",
-      ride: updatedRide,
     });
   } catch (error) {
     console.error("Error accepting ride:", error);
@@ -147,14 +150,14 @@ export const acceptRideByAmbulancePartner = async (req, res) => {
     const ride = await prisma.rides.findUnique({ where: { id: +rideId } });
     if (!ride) return res.status(404).json({ error: "Ride not found" });
 
-    if (ride.isRideAcceptedBy) {
-      return res.status(400).json({ error: "Ride is already accepted by another ambulance partner" });
+    if (ride.isRideAccepted) {
+      return res.status(409).json({ error: "Ride is already accepted by another ambulance partner" });
     }
 
     const updatedRide = await prisma.rides.update({
       where: { id: +rideId },
       data: {
-        isRideAcceptedBy: true,
+        isRideAccepted: true,
         ambulancePartnerId: +ambulancePartnerId,
       },
     });
@@ -200,10 +203,36 @@ export const getCustomerSupportRide = async (req, res) => {
       return res.status(400).json({ error: "Id is required" });
     }
 
+    const matchedCondition = {
+      customerSupportId : +id, 
+    };
+
+
+    console.log(req.query);
+    // accepted but not completed
+    if(req.query.status == 'active'){
+      matchedCondition.isCallAccepted = true
+      matchedCondition.isCallCompleted = false
+    }
+
+    // accepted and completed
+    if(req.query.status == 'complete'){
+      matchedCondition.isCallAccepted = true
+      matchedCondition.isCallCompleted = true
+    }
+
+
     const ride = await prisma.rides.findMany({
-      where: {
-        callAcceptedBy : (+id)
-      },
+      where: matchedCondition,
+      select: {
+        id: true,
+        name: true,
+        phoneNumber: true,
+        isLocationAvail: true,
+        isCallAccepted: true,
+        isRideAccepted: true,
+        createdAt: true,
+      }
     });
 
     if (!ride) return res.status(404).json({ error: "Rides not found" });
@@ -216,7 +245,6 @@ export const getCustomerSupportRide = async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 }
-
 
 export const getAmbulancePartnerRide = async (req, res) => {
   try {
@@ -228,7 +256,7 @@ export const getAmbulancePartnerRide = async (req, res) => {
 
     const ride = await prisma.rides.findMany({
       where: {
-         rideAcceptedBy : +id
+        rideAcceptedBy: +id
       },
     });
 
@@ -242,3 +270,96 @@ export const getAmbulancePartnerRide = async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 }
+
+
+export const getPendingCallsList = async (req, res) => {
+  try {
+
+    console.log("hello")
+    const ride = await prisma.rides.findMany({
+      where: {
+        isCallAccepted: false,
+      },
+      select: {
+        id: true,
+        name: true,
+        phoneNumber: true,
+        isLocationAvail: true,
+        isCallAccepted: true,
+        isRideAccepted: true,
+        createdAt: true
+      },
+      orderBy : {
+        createdAt : 'asc'
+      }
+    });
+
+    if (!ride) return res.status(404).json({ error: "Rides not found" });
+    return res.status(200).json({
+      message: "Ride Fetched Sucessfully",
+      ride: ride,
+    });
+  } catch (error) {
+    console.error("Error accepting ride:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
+export const getPendingAmbulanceList = async (req, res) => {
+  try {
+    const ride = await prisma.rides.findMany({
+      where: {
+        isRideAccepted: false
+      },
+    });
+
+    if (!ride) return res.status(404).json({ error: "Rides not found" });
+    return res.status(200).json({
+      message: "Ride Fetched Sucessfully",
+      ride: ride,
+    });
+  } catch (error) {
+    console.error("Error accepting ride:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
+
+export const completeRideByCustomerSupport = async (req, res) => {
+  try {
+    const { rideId } = req.params;
+    const { customerSupportId } = req.body;
+
+    if (!rideId || !customerSupportId) {
+      return res.status(400).json({ error: "Ride ID and Customer Support ID are required" });
+    }
+
+    console.log(rideId , customerSupportId)
+
+
+    const ride = await prisma.rides.findUnique({ where: { id: +rideId } });
+    if (!ride) return res.status(404).json({ error: "Ride not found" });
+
+    const updatedRide = await prisma.rides.update({
+      where: { 
+        id: +rideId,
+        customerSupportId : +customerSupportId,
+        isCallAccepted : true,
+      },
+      data: {
+        isCallCompleted : true,
+      },
+    });
+
+    console.log(updatedRide);
+
+    return res.status(200).json({
+      message: "Ride Completed by customer support",
+    });
+  } catch (error) {
+    console.error("Error accepting ride:", error);
+    return res.status(500).json({ error: "Internal Server Error while accepting ride" });
+  }
+};
+
+

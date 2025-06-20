@@ -24,12 +24,15 @@ model rides {
   lng             String?
 
   isCallAccepted    Boolean          @default(false)
+  isCallCompleted    Boolean          @default(false)
   customerSupportId Int?
   callAcceptedBy    customerSupport? @relation(fields: [customerSupportId], references: [id])
 
-  isRideAcceptedBy   Boolean           @default(false)
+  isRideAccepted   Boolean           @default(false)
   ambulancePartnerId Int?
   rideAcceptedBy     ambulancePartner? @relation(fields: [ambulancePartnerId], references: [id])
+
+  createdAt DateTime @default(now())
 }
 
 model customerSupport {
@@ -46,7 +49,7 @@ model customerSupport {
 model ambulancePartner {
   id          Int     @unique @default(autoincrement())
   name        String
-  phoneNumber String
+  phoneNumber String  @unique
   email       String
   password    String
   isOnline    Boolean

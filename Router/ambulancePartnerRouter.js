@@ -15,8 +15,8 @@ export const ambulanceRouter =  express.Router();
 ambulanceRouter.post("/addambulancepartner", addAmbulancePartner);
 
 // Read
-ambulanceRouter.get("gteallambulancepartner", getAllAmbulancePartners); // admin protected
-ambulanceRouter.get("getambulancepartner/:id", getAmbulancePartnerById);
+ambulanceRouter.get("/gteallambulancepartner", getAllAmbulancePartners); // admin protected
+ambulanceRouter.get("/getambulancepartner/:id", getAmbulancePartnerById);
 
 // Delete
 ambulanceRouter.delete("deleteambulancepartner/:id", deleteAmbulancePartner);

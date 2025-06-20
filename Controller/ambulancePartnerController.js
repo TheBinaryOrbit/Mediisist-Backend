@@ -63,12 +63,24 @@ export const getAllAmbulancePartners = async (req, res) => {
 export const getAmbulancePartnerById = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log(id);
     const partner = await prisma.ambulancePartner.findUnique({
       where: { id: parseInt(id) },
+      select: {
+        id: true,
+        name: true,
+        phoneNumber: true,
+        email: true,
+        isOnline: true,
+      }
     });
 
     if (!partner) return res.status(500).json({ error: "Unable to get Ambulance Partner" });
-    res.status(200).json(partner);
+    res.status(200).json({
+      message : "Ambulance Partner Fetched Sucessfully",
+      partner : partner
+    }
+    );
   } catch (err) {
     console.log(err);
     return res.status(500).json({ error: "Internal server error" });
@@ -92,14 +104,18 @@ export const deleteAmbulancePartner = async (req, res) => {
 export const toggleAmbulancePartnerStatus = async (req, res) => {
   try {
     const { id } = req.params;
-    const { isOnline } = req.body;
+    const { isOnline , lat ,lng } = req.body;
 
     if (typeof isOnline !== "boolean")
       return res.status(400).json({ error: "Valid status is required" });
 
     const updated = await prisma.ambulancePartner.update({
       where: { id: +id },
-      data: { isOnline },
+      data: { 
+        isOnline : isOnline,
+        lat : lat,
+        lng : lng
+      },
     });
 
     return res.status(200).json({
@@ -165,6 +181,9 @@ export const ambulancePartnerLogin = async (req, res) => {
   try {
     const { phoneNumber, password, fcmToken } = req.body;
 
+    console.log(req.body);
+
+
     if (!phoneNumber || !password)
       return res.status(400).json({ error: "All fields are required" });
 
@@ -173,7 +192,9 @@ export const ambulancePartnerLogin = async (req, res) => {
 
 
     const partner = await prisma.ambulancePartner.findUnique({
-      where: { phoneNumber },
+      where: { 
+        phoneNumber : phoneNumber
+      },
       select: {
         id: true,
         name: true,
@@ -191,9 +212,9 @@ export const ambulancePartnerLogin = async (req, res) => {
       return res.status(403).json({ error: "Incorrect password" });
 
 
-    await prisma.customerSupport.update({
+    await prisma.ambulancePartner.update({
       where: {
-        id: support.id,
+        id: partner.id,
       },
       data: {
         fcmToken: fcmToken
@@ -207,7 +228,6 @@ export const ambulancePartnerLogin = async (req, res) => {
         name: partner.name,
         phoneNumber: partner.phoneNumber,
         email: partner.email,
-        isOnline: partner.isOnline,
       },
     });
   } catch (err) {
