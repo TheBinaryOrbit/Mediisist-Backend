@@ -34,12 +34,11 @@ const sendMessage = (sessionKey, phoneNumber , name) => {
 
 
 // ============================Fast2SMS ============================================ //
-/*
 const sendMessage = async (sessionKey, phoneNumber, name) => {
     try {
         const data = {
             "route": "q",
-            "message": `Hello ${name} please let us know you location http://localhost:3000/getlocation/${sessionKey}`,
+            "message": `Hello ${name} please let us know you location https://mediisist.in/getlocation/${sessionKey}`,
             "flash": 0,
             "numbers": `${phoneNumber}`,
         }
@@ -49,7 +48,7 @@ const sendMessage = async (sessionKey, phoneNumber, name) => {
                 "authorization": process.env.API_KEY,
                 "Content-Type": "application/json"
             }
-        })
+        });
 
         if(res.status == 200 || res.status == 201){
             console.log("SMS Sent Sucessfully")
@@ -59,12 +58,12 @@ const sendMessage = async (sessionKey, phoneNumber, name) => {
         console.error(`Failed to send message: ${error}`)
     }
 }
-*/
+
 // ============================Fast2SMS ============================================ //
 
 
-const sendMessage = async (sessionKey, phoneNumber, name) => {
-    console.log(`http://localhost:3000/getlocation/${sessionKey}`)
-}
+// const sendMessage = async (sessionKey, phoneNumber, name) => {
+//     console.log(`http://localhost:3000/getlocation/${sessionKey}`)
+// }
 
 export default sendMessage;

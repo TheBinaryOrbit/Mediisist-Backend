@@ -1,5 +1,5 @@
 import express from 'express';
-import { acceptRideByAmbulancePartner, acceptRideByCustomerSupport, addRide, completeRideByCustomerSupport, deleteRide, getAmbulancePartnerRide, getCustomerSupportRide, getPendingAmbulanceList, getPendingCallsList, getRideDetails, sendSmsAgain, updateRideLocationBySessionKey } from '../Controller/rideControllers.js';
+import { acceptRideByAmbulancePartner, acceptRideByCustomerSupport, addRide, completeRideByAmbulancePartner, completeRideByCustomerSupport, deleteRide, getAmbulancePartnerRide, getCustomerSupportRide, getPendingAmbulanceList, getPendingCallsList, getRideDetails, sendSmsAgain, updateRideLocationBySessionKey } from '../Controller/rideControllers.js';
 
 export const rideRouter = express.Router();
 
@@ -14,6 +14,7 @@ rideRouter.patch('/complete/customersupport/:rideId' , completeRideByCustomerSup
 
 
 rideRouter.patch('/accept/ambulancepartner/:rideId' , acceptRideByAmbulancePartner);
+rideRouter.patch('/complete/ambulancepartner/:rideId' , completeRideByAmbulancePartner);
 
 
 rideRouter.get('/getride/:session' , getRideDetails);

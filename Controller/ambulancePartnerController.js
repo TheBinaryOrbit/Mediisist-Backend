@@ -37,12 +37,13 @@ export const addAmbulancePartner = async (req, res) => {
       },
     });
 
+
     if (!partner)
       return res.status(500).json({ error: "Unable to create Ambulance Partner" });
 
     res.status(201).json(partner);
   } catch (err) {
-    console.log(err);
+    
     return res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -54,7 +55,7 @@ export const getAllAmbulancePartners = async (req, res) => {
     if (!partners) return res.status(500).json({ error: "Unable to get Ambulance Partners" });
     res.status(200).json(partners);
   } catch (err) {
-    console.log(err);
+    
     return res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -63,7 +64,7 @@ export const getAllAmbulancePartners = async (req, res) => {
 export const getAmbulancePartnerById = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log(id);
+    
     const partner = await prisma.ambulancePartner.findUnique({
       where: { id: parseInt(id) },
       select: {
@@ -82,7 +83,7 @@ export const getAmbulancePartnerById = async (req, res) => {
     }
     );
   } catch (err) {
-    console.log(err);
+    
     return res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -106,6 +107,9 @@ export const toggleAmbulancePartnerStatus = async (req, res) => {
     const { id } = req.params;
     const { isOnline , lat ,lng } = req.body;
 
+    
+
+
     if (typeof isOnline !== "boolean")
       return res.status(400).json({ error: "Valid status is required" });
 
@@ -113,16 +117,19 @@ export const toggleAmbulancePartnerStatus = async (req, res) => {
       where: { id: +id },
       data: { 
         isOnline : isOnline,
-        lat : lat,
-        lng : lng
+        lat : String(lat),
+        lng : String(lng)
       },
     });
+
+    
 
     return res.status(200).json({
       message: `Marked ${isOnline ? "Online" : "Offline"}`,
       partner: updated,
     });
   } catch {
+    
     return res.status(500).json({ error: "Unable to update status" });
   }
 };
@@ -135,6 +142,8 @@ export const updateAmbulancePartnerPassword = async (req, res) => {
     if (!id) return res.status(400).json({ error: "Id is required" });
 
     const { oldPassword, newPassword } = req.body;
+
+    
 
     if (!oldPassword || !newPassword)
       return res.status(400).json({ error: "All fields are required" });
@@ -169,7 +178,7 @@ export const updateAmbulancePartnerPassword = async (req, res) => {
 
     return res.status(200).json({ message: "Password updated successfully" });
   } catch (error) {
-    console.log(error);
+    
     return res
       .status(500)
       .json({ error: "Internal server error while updating password" });
@@ -181,7 +190,7 @@ export const ambulancePartnerLogin = async (req, res) => {
   try {
     const { phoneNumber, password, fcmToken } = req.body;
 
-    console.log(req.body);
+    
 
 
     if (!phoneNumber || !password)
@@ -205,6 +214,8 @@ export const ambulancePartnerLogin = async (req, res) => {
       },
     });
 
+    
+
     if (!partner)
       return res.status(404).json({ error: "No user found with this phone number" });
 
@@ -223,7 +234,7 @@ export const ambulancePartnerLogin = async (req, res) => {
 
     return res.status(200).json({
       message: "Login successful",
-      ambulancePartner: {
+      partner: {
         id: partner.id,
         name: partner.name,
         phoneNumber: partner.phoneNumber,
@@ -231,7 +242,7 @@ export const ambulancePartnerLogin = async (req, res) => {
       },
     });
   } catch (err) {
-    console.log(err);
+    
     return res.status(500).json({ error: "Login failed due to server error" });
   }
 };

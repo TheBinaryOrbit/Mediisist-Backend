@@ -38,7 +38,7 @@ export const sentNotificationToAmbulancePartner = async ({ name, phoneNumber, la
 
   const message = {
     data: {
-      "message": "{\"name\": \"Ayan\", \"phoneNumber\": \"93869602\"}"
+      "message": `{\"name\": \"${name}\", \"phoneNumber\": \"${phoneNumber}\"}`
     },
     tokens: partner
   };

@@ -29,6 +29,7 @@ model rides {
   callAcceptedBy    customerSupport? @relation(fields: [customerSupportId], references: [id])
 
   isRideAccepted   Boolean           @default(false)
+  isRideCompleted Boolean           @default(false)
   ambulancePartnerId Int?
   rideAcceptedBy     ambulancePartner? @relation(fields: [ambulancePartnerId], references: [id])
 

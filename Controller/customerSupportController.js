@@ -49,11 +49,10 @@ export const addCustomerSupport = async (req, res) => {
     res.status(201).json(support);
 
   } catch (err) {
-    console.log(err);
+    
     return res.status(500).json({ error: "Unable To Create Customer Support Internal server error" });
   }
 };
-
 
 // Get all Customer Supports
 export const getAllCustomerSupports = async (req, res) => {
@@ -62,7 +61,7 @@ export const getAllCustomerSupports = async (req, res) => {
     if (!supports) return res.status(500).json({ error: "Unable To Get Customer Supports" });
     res.status(200).json(supports);
   } catch (err) {
-    console.log(err);
+    
     return res.status(500).json({ error: "Unable To Get Customer Supports Internal server error" });
   }
 };
@@ -72,7 +71,7 @@ export const getCustomerSupportById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    console.log(`CustomerSupport ${id}`)
+    
     const support = await prisma.customerSupport.findUnique({
       where: { id: parseInt(id) },
       select: {
@@ -91,7 +90,7 @@ export const getCustomerSupportById = async (req, res) => {
     });
 
   } catch (err) {
-    console.log(err);
+    
     return res.status(500).json({ error: "Unable To Get Customer Support Internal server error" });
   }
 };
@@ -116,7 +115,7 @@ export const toggleCustomerSupportStatus = async (req, res) => {
     const { id } = req.params;
     const { isOnline } = req.body;
 
-    console.log(`isOnline : ${isOnline}`)
+    
 
     if (typeof isOnline !== 'boolean')
       return res.status(400).json({ error: 'Valid status is required' });
@@ -133,7 +132,7 @@ export const toggleCustomerSupportStatus = async (req, res) => {
       }
     });
 
-    console.log(updated);
+    
 
     return res.status(200).json({ message: `Marked ${isOnline ? 'Online' : 'Offline'}`, support: updated });
   } catch {
@@ -163,7 +162,7 @@ export const UpdatePassword = async (req, res) => {
 
     if (!matchedPassword(oldPassword, support.password)) return res.status(403).json({ "error": "Old Password Is Incorrect" });
 
-    console.log(newPassword);
+    
 
     const updatedsupport = await prisma.customerSupport.update({
       where: {
@@ -178,7 +177,7 @@ export const UpdatePassword = async (req, res) => {
     return res.status(200).json({ "message": "Password Updated Sucessfully" });
 
   } catch (error) {
-    console.log(error)
+    
     return res.status(500).json({ "error": "Unable To Update passwrod of Service Boy Internal Server Error" });
   }
 }
@@ -188,7 +187,7 @@ export const customerSupportLogin = async (req, res) => {
   try {
     const { phoneNumber, password, fcmToken } = req.body;
 
-    console.log(req.body);
+    
 
     if (!phoneNumber || !password)
       return res.status(400).json({ error: 'All fields are required' });
@@ -236,7 +235,7 @@ export const customerSupportLogin = async (req, res) => {
     });
 
   } catch (err) {
-    console.log(err);
+    
     return res.status(500).json({ error: 'Login failed due to server error' });
   }
 };
