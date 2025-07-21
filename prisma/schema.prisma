@@ -76,6 +76,7 @@ model doctor {
 
   // verification details
   isVerified Boolean @default(false)
+  isfeatured Boolean @default(false)
 
   // clinic details
   clinicName    String?
@@ -113,10 +114,26 @@ model experience {
 }
 
 model timings {
-  id        Int    @unique @default(autoincrement())
-  day       String
-  startTime String
-  endTime   String
-  doctorId  Int
-  doctor    doctor @relation(fields: [doctorId], references: [id])
+  id          Int     @unique @default(autoincrement())
+  day         String
+  startTime   String  @default("10:00")
+  endTime     String  @default("17:00")
+  isAvailable Boolean @default(true)
+
+  fee        Int     @default(0)
+
+  doctorId    Int
+  doctor      doctor  @relation(fields: [doctorId], references: [id])
+
+  slots       slots[]
+}
+
+
+model slots{
+  id         Int     @unique @default(autoincrement())
+  startTime  String  @default("10:00")
+  endTime    String  @default("17:00")
+
+  timmingsId Int
+  timings    timings @relation(fields: [timmingsId], references: [id])
 }

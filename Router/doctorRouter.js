@@ -10,7 +10,7 @@ import {
   editProfileImage
 } from '../Controller/doctorController.js';
 
-const doctorRouter = express.Router();
+export const doctorRouter = express.Router();
 
 // Add a new doctor
 doctorRouter.post('/add', addDoctor);
@@ -36,4 +36,3 @@ doctorRouter.put('/password/:id', changePassword);
 // Edit profile image
 doctorRouter.put('/profile-image/:id', editProfileImage);
 
-export default doctorRouter;

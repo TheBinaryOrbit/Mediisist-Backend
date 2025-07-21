@@ -4,8 +4,11 @@ import cors from 'cors'
 import { customerSupportRouter } from './Router/customerSupportRouter.js';
 import { ambulanceRouter } from './Router/ambulancePartnerRouter.js';
 import { rideRouter } from './Router/rideRouter.js';
-import { sentNotificationToCallSupport , sentNotificationToAmbulancePartner } from './Utils/firebaseNotification.js';
-
+import { slotRouter } from './Router/slotRouter.js';
+import { doctorRouter } from './Router/doctorRouter.js';
+import { educationRouter } from './Router/educationRouter.js';
+import { experienceRouter } from './Router/experienceRouter.js';
+import { timingRouter } from './Router/timingRouter.js';
 
 const PORT = process.env.PORT || 8000
 const app = express();
@@ -26,19 +29,16 @@ app.get('/' , (req,res)=>{
 })
 
 
-// app.get('/getnotification' , (req,res)=>{
-//    sentNotificationToCallSupport({ name :  "Anish" , phoneNumber : "93869602" });
-//    res.status(200).send('send');
-// })
-
-// app.get('/getnotificationa' , (req,res)=>{
-//    sentNotificationToAmbulancePartner({ name :  "Anish" , phoneNumber : "9386960284" , lat : "28.752993" , lng : '77.497431' });
-//    res.status(200).send('send');
-// })
-
 app.use('/api/v1/customersupport' , customerSupportRouter);
 app.use('/api/v1/ambulancepartner' , ambulanceRouter);
 app.use('/api/v1/ride' , rideRouter);
+app.use('/api/v1/slot' , slotRouter);
+app.use('/api/v1/doctor' , doctorRouter);
+app.use('/api/v1/education' , educationRouter);
+app.use('/api/v1/experience' , experienceRouter);
+app.use('/api/v1/timing' , timingRouter);
+
+
 
 app.listen(PORT , ()=>{
     console.log(`Server Started At ${PORT}`)

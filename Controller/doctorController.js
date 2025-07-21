@@ -1,7 +1,8 @@
-import prisma from "../Utils/prismaClient";
+import prisma from "../Utils/prismaClient.js";
 import { uploadDoctorImage } from "../Storage/doctor.js";
 import { generatePassword } from "../Utils/password.js";
 import deleteImage from "../Utils/deleteImage.js";
+import addTimingDetails from "../Utils/createTiming.js";
 
 // Add a new Doctor
 export const addDoctor = async (req, res) => {
@@ -37,6 +38,14 @@ export const addDoctor = async (req, res) => {
                     imageUrl: imageUrl ? `doctorimages/${imageUrl}` : null,
                 }
             });
+
+            // create timings for the doctor
+            try {
+                const timings = await addTimingDetails(newDoctor.id);
+            } catch (error) {
+                console.error("Error creating timing details:", error);
+                res.status(201).json({ message: "Doctor added successfully but failed to create timing details", doctor: newDoctor });
+            }
 
             res.status(201).json({ message: "Doctor added successfully", doctor: newDoctor });
 

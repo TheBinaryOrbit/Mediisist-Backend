@@ -6,7 +6,7 @@ import {
 } from '../Controller/experienceController.js';
 import express from 'express';
 
-const experienceRouter = express.Router();
+export const experienceRouter = express.Router();
 
 // Add experience detail
 experienceRouter.post('/:doctorId', addExperienceDetail);
@@ -19,5 +19,3 @@ experienceRouter.delete('/:experienceId/:doctorId', deleteExperienceDetail);
 
 // Get experience details of a doctor
 experienceRouter.get('/:doctorId', getExperienceDetails);
-
-export default experienceRouter;

@@ -6,7 +6,7 @@ import {
   getEducationDetails
 } from '../Controller/educationController.js';
 
-const educationRouter = express.Router();
+export const educationRouter = express.Router();
 
 // Add education detail
 educationRouter.post('/:doctorId', addEducationDetail);
@@ -20,4 +20,3 @@ educationRouter.delete('/:educationId/:doctorId', deleteEducationDetail);
 // Get education details of a doctor
 educationRouter.get('/:doctorId', getEducationDetails);
 
-export default educationRouter;

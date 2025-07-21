@@ -1,4 +1,4 @@
-import prisma from "../Utils/prismaClient";
+import prisma from "../Utils/prismaClient.js";
 
 // add experience detail of a doctor
 export const addExperienceDetail = async (req, res) => {
