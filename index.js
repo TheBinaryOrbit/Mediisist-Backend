@@ -19,22 +19,22 @@ app.use(cors({
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
+app.use(express.static('public'));
 
 app.get('/' , (req,res)=>{
     res.status(200).json({message : "Har Har Mahadev"})
 })
 
 
-app.get('/getnotification' , (req,res)=>{
-   sentNotificationToCallSupport({ name :  "Anish" , phoneNumber : "93869602" });
-   res.status(200).send('send');
-})
+// app.get('/getnotification' , (req,res)=>{
+//    sentNotificationToCallSupport({ name :  "Anish" , phoneNumber : "93869602" });
+//    res.status(200).send('send');
+// })
 
-app.get('/getnotificationa' , (req,res)=>{
-   sentNotificationToAmbulancePartner({ name :  "Anish" , phoneNumber : "9386960284" , lat : "28.752993" , lng : '77.497431' });
-   res.status(200).send('send');
-})
+// app.get('/getnotificationa' , (req,res)=>{
+//    sentNotificationToAmbulancePartner({ name :  "Anish" , phoneNumber : "9386960284" , lat : "28.752993" , lng : '77.497431' });
+//    res.status(200).send('send');
+// })
 
 app.use('/api/v1/customersupport' , customerSupportRouter);
 app.use('/api/v1/ambulancepartner' , ambulanceRouter);

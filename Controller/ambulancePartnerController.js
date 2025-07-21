@@ -1,51 +1,68 @@
 import { generatePassword, matchedPassword } from "../Utils/password.js";
 import prisma from "../Utils/prismaClient.js";
+import { uploadAmbulancePartnerImage } from "../Storage/ambulancePartner.js";
+import deleteImage from "../Utils/deleteImage.js";
 
-// Add a new Ambulance Partner
-export const addAmbulancePartner = async (req, res) => {
-  try {
-    const { name, phoneNumber, email, password } = req.body;
 
-    if (!name || !phoneNumber || !email || !password)
-      return res.status(400).json({ error: "All fields are required" });
+export const addAmbulancePartner = (req, res) => {
+  uploadAmbulancePartnerImage(req, res, async (err) => {
+    try {
+      if (err) {
+        console.error("Multer error:", err);
+        return res.status(400).json({ error: err.message });
+      }
 
-    if (!name || name.trim() === "") {
-      return res.status(400).json({ error: "Name is required" });
+      const { name, phoneNumber, email, password, vehicleNumber } = req.body;
+
+      // Check all required fields
+      if (!name || !phoneNumber || !email || !password || !vehicleNumber) {
+        return res.status(400).json({ error: "All fields are required." });
+      }
+
+      // Validate phone
+      if (!/^[6-9]\d{9}$/.test(phoneNumber)) {
+        return res.status(400).json({ error: "Enter a valid 10-digit phone number." });
+      }
+
+      // Validate email
+      if (!/^\S+@\S+\.\S+$/.test(email)) {
+        return res.status(400).json({ error: "Enter a valid email address." });
+      }
+
+      // Validate password
+      if (password.length < 6) {
+        return res.status(400).json({ error: "Password must be at least 6 characters." });
+      }
+
+      // Validate file presence
+      if (!req.files?.image) {
+        return res.status(400).json({ error: "Image is required." });
+      }
+
+      const hashedPassword = generatePassword(password);
+
+      const partner = await prisma.ambulancePartner.create({
+        data: {
+          name,
+          phoneNumber,
+          email,
+          password: hashedPassword,
+          vehicleNumber,
+          isOnline: false,
+          imageUrl: `/ambulancepartnerimages/${req.files.image[0].filename}`,
+        },
+      });
+
+      return res.status(201).json({
+        message: "Ambulance Partner added successfully.",
+        partner,
+      });
+
+    } catch (error) {
+      console.error("Add Ambulance Partner Error:", error);
+      return res.status(500).json({ error: "Internal server error." });
     }
-
-    if (!phoneNumber || !/^[6-9]\d{9}$/.test(phoneNumber)) {
-      return res.status(400).json({ error: "Valid 10-digit phone number is required" });
-    }
-
-    if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
-      return res.status(400).json({ error: "Valid email is required" });
-    }
-
-    if (!password || password.length < 6) {
-      return res.status(400).json({ error: "Password must be at least 6 characters" });
-    }
-
-    const hashedPassword = generatePassword(password);
-
-    const partner = await prisma.ambulancePartner.create({
-      data: {
-        name,
-        phoneNumber,
-        email,
-        password: hashedPassword,
-        isOnline: false,
-      },
-    });
-
-
-    if (!partner)
-      return res.status(500).json({ error: "Unable to create Ambulance Partner" });
-
-    res.status(201).json(partner);
-  } catch (err) {
-    
-    return res.status(500).json({ error: "Internal server error" });
-  }
+  });
 };
 
 // Get all Ambulance Partners
@@ -92,9 +109,17 @@ export const getAmbulancePartnerById = async (req, res) => {
 export const deleteAmbulancePartner = async (req, res) => {
   try {
     const { id } = req.params;
+    //delete image if exists
+    const partner = await prisma.ambulancePartner.findUnique({ where: { id: parseInt(id) } });
+    if (partner?.imageUrl) {
+      const imagePath = `./public/${partner.imageUrl}`;
+      deleteImage(imagePath);
+    }
+
     await prisma.ambulancePartner.delete({
       where: { id: parseInt(id) },
     });
+
     res.json({ message: "Deleted successfully" });
   } catch (err) {
     res.status(500).json({ error: err.message });

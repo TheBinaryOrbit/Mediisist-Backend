@@ -8,18 +8,17 @@ import {
     updateAmbulancePartnerPassword , 
     ambulancePartnerLogin, 
     updateAmbulancePartnerLocation} from '../Controller/ambulancePartnerController.js';
-
 export const ambulanceRouter =  express.Router();
 
 // Create
-ambulanceRouter.post("/addambulancepartner", addAmbulancePartner);
+ambulanceRouter.post("/add", addAmbulancePartner); // admin protected
 
 // Read
-ambulanceRouter.get("/gteallambulancepartner", getAllAmbulancePartners); // admin protected
+ambulanceRouter.get("/getallambulancepartner", getAllAmbulancePartners); // admin protected
 ambulanceRouter.get("/getambulancepartner/:id", getAmbulancePartnerById);
 
 // Delete
-ambulanceRouter.delete("deleteambulancepartner/:id", deleteAmbulancePartner);
+ambulanceRouter.delete("deleteambulancepartner/:id", deleteAmbulancePartner); // admin protected
 
 // Update Status
 ambulanceRouter.patch("/changestatus/:id", toggleAmbulancePartnerStatus);

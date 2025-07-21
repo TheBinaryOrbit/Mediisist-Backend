@@ -36,6 +36,8 @@ const sendMessage = (sessionKey, phoneNumber , name) => {
 // ============================Fast2SMS ============================================ //
 const sendMessage = async (sessionKey, phoneNumber, name) => {
     try {
+
+        console.log(`http://localhost:3000/getlocation/${sessionKey}`);
         const data = {
             "route": "q",
             "message": `Hello ${name} please let us know you location https://mediisist.in/getlocation/${sessionKey}`,

@@ -231,7 +231,8 @@ export const getCustomerSupportRide = async (req, res) => {
         isCallAccepted: true,
         isRideAccepted: true,
         createdAt: true,
-        isCallCompleted: true
+        isCallCompleted: true,
+        address : true
       },
       orderBy: {
         createdAt: 'desc'
@@ -379,14 +380,15 @@ export const getPendingAmbulanceList = async (req, res) => {
 export const completeRideByCustomerSupport = async (req, res) => {
   try {
     const { rideId } = req.params;
-    const { customerSupportId } = req.body;
+    const { customerSupportId , address } = req.body;
 
-    if (!rideId || !customerSupportId) {
+    if (!rideId || !customerSupportId || !address) {
       return res.status(400).json({ error: "Ride ID and Customer Support ID are required" });
     }
 
-    
-
+    if (address.trim() === "") {
+      return res.status(400).json({ error: "Address cannot be empty" });
+    }
 
     const ride = await prisma.rides.findUnique({ where: { id: +rideId } });
     if (!ride) return res.status(404).json({ error: "Ride not found" });
@@ -399,11 +401,12 @@ export const completeRideByCustomerSupport = async (req, res) => {
       },
       data: {
         isCallCompleted: true,
+        address: address,
       },
     });
 
 
-    sentNotificationToAmbulancePartner({ name: updatedRide.name, phoneNumber: updatedRide.phoneNumber })
+    sentNotificationToAmbulancePartner({ name: updatedRide.name, phoneNumber: updatedRide.phoneNumber , address: address })
 
     return res.status(200).json({
       message: "Ride Completed by customer support",

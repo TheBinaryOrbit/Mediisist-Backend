@@ -2,3 +2,4 @@
 .env
 /generated/prisma
 /firebase/firebase.js
+public

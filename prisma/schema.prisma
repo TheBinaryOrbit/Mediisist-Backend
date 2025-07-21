@@ -24,15 +24,16 @@ model rides {
   lng             String?
 
   isCallAccepted    Boolean          @default(false)
-  isCallCompleted    Boolean          @default(false)
+  isCallCompleted   Boolean          @default(false)
   customerSupportId Int?
   callAcceptedBy    customerSupport? @relation(fields: [customerSupportId], references: [id])
 
-  isRideAccepted   Boolean           @default(false)
-  isRideCompleted Boolean           @default(false)
+  isRideAccepted     Boolean           @default(false)
+  isRideCompleted    Boolean           @default(false)
   ambulancePartnerId Int?
   rideAcceptedBy     ambulancePartner? @relation(fields: [ambulancePartnerId], references: [id])
 
+  address   String?
   createdAt DateTime @default(now())
 }
 
@@ -44,18 +45,78 @@ model customerSupport {
   password    String
   isOnline    Boolean
   fcmToken    String?
+  imageUrl    String?
   rides       rides[]
 }
 
 model ambulancePartner {
+  id            Int     @unique @default(autoincrement())
+  name          String
+  phoneNumber   String  @unique
+  email         String
+  password      String
+  isOnline      Boolean
+  lat           String?
+  lng           String?
+  imageUrl      String?
+  vehicleNumber String?
+  fcmToken      String?
+  rides         rides[]
+}
+
+model doctor {
   id          Int     @unique @default(autoincrement())
-  name        String
+  fName       String
+  lName       String
+  displayName String
   phoneNumber String  @unique
   email       String
   password    String
-  isOnline    Boolean
-  lat         String?
-  lng         String?
-  fcmToken    String?
-  rides       rides[]
+  imageUrl    String?
+
+  // verification details
+  isVerified Boolean @default(false)
+
+  // clinic details
+  clinicName    String?
+  clinicAddress String?
+
+  // clinic location
+  lat String?
+  lng String?
+
+  education  education[]
+  experience experience[]
+  timings    timings[]
+}
+
+model education {
+  id            Int    @unique @default(autoincrement())
+  courseName    String
+  university    String
+  yearofPassing Int
+
+  doctorId Int
+  doctor   doctor @relation(fields: [doctorId], references: [id])
+}
+
+model experience {
+  id               Int      @unique @default(autoincrement())
+  title            String
+  hospital         String
+  employmentType   String
+  from             DateTime
+  to               DateTime
+  currentlyWorking Boolean  @default(false)
+  doctorId         Int
+  doctor           doctor   @relation(fields: [doctorId], references: [id])
+}
+
+model timings {
+  id        Int    @unique @default(autoincrement())
+  day       String
+  startTime String
+  endTime   String
+  doctorId  Int
+  doctor    doctor @relation(fields: [doctorId], references: [id])
 }

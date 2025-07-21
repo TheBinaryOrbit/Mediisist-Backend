@@ -4,7 +4,7 @@ import { acceptRideByAmbulancePartner, acceptRideByCustomerSupport, addRide, com
 export const rideRouter = express.Router();
 
 
-rideRouter.post('/addride' , addRide);
+rideRouter.post('/addride' , addRide); 
 
 rideRouter.patch('/updatelocation/:session' , updateRideLocationBySessionKey);
 

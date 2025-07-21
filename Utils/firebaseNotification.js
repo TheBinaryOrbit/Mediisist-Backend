@@ -31,14 +31,14 @@ export const sentNotificationToCallSupport = async ({ name, phoneNumber }) => {
 
 
 
-export const sentNotificationToAmbulancePartner = async ({ name, phoneNumber, lat = "28.752993", lng = "77.497431" }) => {
+export const sentNotificationToAmbulancePartner = async ({ name, phoneNumber, lat = "28.752993", lng = "77.497431" , address }) => {
   const partner = await getAllAmbulancePartners()
 
   console.log(partner);
 
   const message = {
     data: {
-      "message": `{\"name\": \"${name}\", \"phoneNumber\": \"${phoneNumber}\"}`
+      "message": `{\"name\": \"${name}\", \"phoneNumber\": \"${phoneNumber}\"} \"address\": \"${address}\"`
     },
     tokens: partner
   };
