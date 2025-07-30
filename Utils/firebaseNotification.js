@@ -5,7 +5,8 @@ import { firebaseadmin } from "../firebase/firebaseadmin.js";
 export const sentNotificationToCallSupport = async ({ name, phoneNumber }) => {
   const support = await getAllCustomerSupport(); // Should return array of tokens
 
-  console.log(support )
+  console.log(support)
+
   if (!support || support.length === 0) {
     console.log("No support tokens found");
     return 400;
@@ -20,7 +21,7 @@ export const sentNotificationToCallSupport = async ({ name, phoneNumber }) => {
 
   try {
     const response = await firebaseadmin.messaging().sendEachForMulticast(message);
-    // console.log(response.responses);
+    console.log(response.responses);
     return 200;
   } catch (error) {
     console.error(error);
@@ -31,19 +32,26 @@ export const sentNotificationToCallSupport = async ({ name, phoneNumber }) => {
 
 
 
-export const sentNotificationToAmbulancePartner = async ({ name, phoneNumber, lat = "28.752993", lng = "77.497431" , address }) => {
+export const sentNotificationToAmbulancePartner = async ({ name, phoneNumber, lat = "28.752993", lng = "77.497431", address }) => {
   const partner = await getAllAmbulancePartners()
 
   console.log(partner);
 
+  if (!support || support.length === 0) {
+    console.log("No support tokens found");
+    return 400;
+  }
+
   const message = {
+    tokens: partner,
     data: {
       "message": `{\"name\": \"${name}\", \"phoneNumber\": \"${phoneNumber}\"} \"address\": \"${address}\"`
     },
-    tokens: partner
   };
+
   try {
     const response = await firebaseadmin.messaging().sendEachForMulticast(message);
+    console.log(response.responses);
     return 200
   } catch (error) {
     console.log(error)
