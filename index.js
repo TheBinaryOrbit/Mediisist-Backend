@@ -39,6 +39,7 @@ app.get('/', (req, res) => {
 
 app.get('/getnotification', async (req, res) => {
   sentNotificationToAmbulancePartner({ name: "John Doe", phoneNumber: "1234567890" });
+  res.status(200).json({ message: "Notification sent to ambulance partners" });
 })
 
 
