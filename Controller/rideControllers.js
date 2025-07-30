@@ -165,6 +165,7 @@ export const acceptRideByAmbulancePartner = async (req, res) => {
 
     return res.status(200).json({
       message: "Ride accepted by ambulance partner",
+      sessionKey: updatedRide.sessionKey,
     });
   } catch (error) {
     
@@ -256,6 +257,8 @@ export const getAmbulancePartnerRide = async (req, res) => {
   try {
     const id = req.params.id;
 
+    console.log("Fetching rides for ambulance partner ID:", id);
+
     if (!id) {
       return res.status(400).json({ error: "Id is required" });
     }
@@ -292,7 +295,8 @@ export const getAmbulancePartnerRide = async (req, res) => {
         isLocationAvail: true,
         lat: true,
         lng: true,
-        createdAt: true
+        createdAt: true,
+        address: true,
       },
       orderBy: {
         createdAt: 'desc'
@@ -358,12 +362,14 @@ export const getPendingAmbulanceList = async (req, res) => {
         name: true,
         phoneNumber: true,
         createdAt: true,
+        address: true,
       },
       orderBy: {
         createdAt: 'desc'
       }
     });
 
+    console.log("Pending Ambulance List:", ride);
     
     if (!ride) return res.status(404).json({ error: "Rides not found" });
     return res.status(200).json({
@@ -481,6 +487,8 @@ export const completeRideByAmbulancePartner = async (req, res) => {
     const { rideId } = req.params;
     const { ambulancePartnerId } = req.body;
 
+    console.log("Ride ID:", rideId, "Ambulance Partner ID:", ambulancePartnerId);
+
     if (!rideId || !ambulancePartnerId) {
       return res.status(400).json({ error: "Ride ID and Customer Support ID are required" });
     }
@@ -491,9 +499,10 @@ export const completeRideByAmbulancePartner = async (req, res) => {
     const ride = await prisma.rides.findUnique({ where: { id: +rideId } });
     if (!ride) return res.status(404).json({ error: "Ride not found" });
 
-    if (ride.lat == null || ride.lng == null) {
-      return res.status(409).json({ error: "Cannot complete the Ride lan lng not available" });
-    }
+    // if (ride.lat == null || ride.lng == null) {
+    //   console.error("Ride location not available for ride ID:", rideId);
+    //   return res.status(409).json({ error: "Cannot complete the Ride lat lng not available" });
+    // }
 
     const updatedRide = await prisma.rides.update({
       where: {
@@ -512,7 +521,7 @@ export const completeRideByAmbulancePartner = async (req, res) => {
       message: "Ride Completed by customer support",
     });
   } catch (error) {
-    
+    console.error("Error completing ride by ambulance partner:", error);
     return res.status(500).json({ error: "Internal Server Error while accepting ride" });
   }
 };

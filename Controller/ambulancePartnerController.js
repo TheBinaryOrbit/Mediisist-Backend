@@ -90,6 +90,8 @@ export const getAmbulancePartnerById = async (req, res) => {
         phoneNumber: true,
         email: true,
         isOnline: true,
+        imageUrl : true,
+        vehicleNumber: true,
       }
     });
 
@@ -215,7 +217,7 @@ export const ambulancePartnerLogin = async (req, res) => {
   try {
     const { phoneNumber, password, fcmToken } = req.body;
 
-    
+    console.log("Login attempt from:", req.body.fcmToken || "Unknown");
 
 
     if (!phoneNumber || !password)
@@ -235,6 +237,8 @@ export const ambulancePartnerLogin = async (req, res) => {
         email: true,
         phoneNumber: true,
         password: true,
+        imageUrl: true,
+        vehicleNumber: true,
         isOnline: true,
       },
     });
@@ -264,33 +268,12 @@ export const ambulancePartnerLogin = async (req, res) => {
         name: partner.name,
         phoneNumber: partner.phoneNumber,
         email: partner.email,
+        imageUrl: partner.imageUrl,
+        vehicleNumber: partner.vehicleNumber
       },
     });
   } catch (err) {
-    
+    console.error("Ambulance Partner Login Error:", err);
     return res.status(500).json({ error: "Login failed due to server error" });
-  }
-};
-
-
-export const updateAmbulancePartnerLocation = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { lat, lng } = req.body;
-
-    if (!lat || !lng)
-      return res.status(400).json({ error: "Location fields are required" });
-
-    const updated = await prisma.ambulancePartner.update({
-      where: { id: +id },
-      data: { lat, lng },
-    });
-
-    return res.status(200).json({
-      message: `Location Updated Sucessfully`,
-      partner: updated,
-    });
-  } catch {
-    return res.status(500).json({ error: "Unable to update Location" });
   }
 };

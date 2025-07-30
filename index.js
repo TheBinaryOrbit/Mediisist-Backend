@@ -11,7 +11,7 @@ import { experienceRouter } from './Router/experienceRouter.js';
 import { timingRouter } from './Router/timingRouter.js';
 
 import { createServer } from 'http';
-import { initializeSocket } from './Utils/initSocket.js';
+import { initializeSocket } from './Socket/locationSocket.js';
 
 
 const PORT = process.env.PORT || 8000

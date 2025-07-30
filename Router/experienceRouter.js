@@ -9,13 +9,13 @@ import express from 'express';
 export const experienceRouter = express.Router();
 
 // Add experience detail
-experienceRouter.post('/:doctorId', addExperienceDetail);
+experienceRouter.post('add/:doctorId', addExperienceDetail);
 
 // Update experience detail
-experienceRouter.put('/:experienceId/:doctorId', updateExperienceDetail);
+experienceRouter.put('/update/:experienceId/:doctorId', updateExperienceDetail);
 
 // Delete experience detail
-experienceRouter.delete('/:experienceId/:doctorId', deleteExperienceDetail);
+experienceRouter.delete('/delete/:experienceId/:doctorId', deleteExperienceDetail);
 
 // Get experience details of a doctor
-experienceRouter.get('/:doctorId', getExperienceDetails);
+experienceRouter.get('/get/:doctorId', getExperienceDetails);

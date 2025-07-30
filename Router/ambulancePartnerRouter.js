@@ -6,8 +6,8 @@ import {
     deleteAmbulancePartner , 
     toggleAmbulancePartnerStatus , 
     updateAmbulancePartnerPassword , 
-    ambulancePartnerLogin, 
-    updateAmbulancePartnerLocation} from '../Controller/ambulancePartnerController.js';
+    ambulancePartnerLogin
+} from '../Controller/ambulancePartnerController.js';
 export const ambulanceRouter =  express.Router();
 
 // Create
@@ -26,8 +26,6 @@ ambulanceRouter.patch("/changestatus/:id", toggleAmbulancePartnerStatus);
 // Update Password
 ambulanceRouter.patch("/changepassword/:id", updateAmbulancePartnerPassword);
 
-// Update location
-ambulanceRouter.patch("/updatelocation/:id", updateAmbulancePartnerLocation);
 
 // Login
 ambulanceRouter.post("/login", ambulancePartnerLogin);

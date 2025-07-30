@@ -16,23 +16,23 @@ export const doctorRouter = express.Router();
 doctorRouter.post('/add', addDoctor);
 
 // Get all doctors
-doctorRouter.get('/', getAllDoctors); // admin protected
+doctorRouter.get('/getall', getAllDoctors); // admin protected
 
 // Get doctor by ID
-doctorRouter.get('/:id', getDoctorById);
+doctorRouter.get('/get/:id', getDoctorById);
 
 // Delete a doctor
-doctorRouter.delete('/:id', deleteDoctor);
+doctorRouter.delete('/delete/:id', deleteDoctor);
 
 // Update doctor details
-doctorRouter.put('/:id', updateDoctorDetails);
+doctorRouter.put('/update/:id', updateDoctorDetails);
 
 // Update clinic details
-doctorRouter.put('/clinic/:id', updateClinicDetails);
+doctorRouter.put('/update/clinic/:id', updateClinicDetails);
 
 // Change password
-doctorRouter.put('/password/:id', changePassword);
+doctorRouter.put('/update/password/:id', changePassword);
 
 // Edit profile image
-doctorRouter.put('/profile-image/:id', editProfileImage);
+doctorRouter.put('/update/profile-image/:id', editProfileImage);
 

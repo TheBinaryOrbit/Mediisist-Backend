@@ -22,11 +22,12 @@ export const initializeSocket = (server) => {
 
 
         socket.on('shareLocation', (data) => {
-            const { sessionKey, lat , lng } = data;
+            console.log('Location data received:', data);
+            const { sessionKey, latitude , longitude } = data;
             
             if (user[sessionKey]) {
-                io.to(user[sessionKey]).emit('locationUpdate', { lat, lng });
-                console.log(`Location shared with user ${sessionKey}:`, { lat, lng });
+                io.to(user[sessionKey]).emit('locationUpdate', { latitude, longitude });
+                console.log(`Location shared with user ${sessionKey}: ${user[sessionKey]}`, { latitude, longitude });
             } else {
                 console.log(`User with session key ${sessionKey} not found`);
             }

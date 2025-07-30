@@ -11,4 +11,4 @@ export const timingRouter = express.Router();
 timingRouter.put('/update/:id', updateTimingDetails);
 
 // Get all timings
-timingRouter.get('/', getTimingDetails  );
+timingRouter.get('/get/:doctorId', getTimingDetails);

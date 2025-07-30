@@ -9,14 +9,14 @@ import {
 export const educationRouter = express.Router();
 
 // Add education detail
-educationRouter.post('/:doctorId', addEducationDetail);
+educationRouter.post('add/:doctorId', addEducationDetail);
 
 // Update education detail
-educationRouter.put('/:educationId', updateEducationDetail);
+educationRouter.put('/update/:educationId', updateEducationDetail);
 
 // Delete education detail
-educationRouter.delete('/:educationId/:doctorId', deleteEducationDetail);
+educationRouter.delete('/delete/:educationId/:doctorId', deleteEducationDetail);
 
 // Get education details of a doctor
-educationRouter.get('/:doctorId', getEducationDetails);
+educationRouter.get('/get/:doctorId', getEducationDetails);
 
