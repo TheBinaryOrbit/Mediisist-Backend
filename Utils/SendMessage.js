@@ -2,7 +2,7 @@ import axios from 'axios';
 import twilio from 'twilio';
 
 
-/*
+
 // ============================twilio SMS ============================================ //
 
 const accountSid = process.env.YOUR_TWILIO_ACCOUNT_SID;
@@ -12,7 +12,7 @@ const twilioPhoneNumber = process.env.YOUR_TWILIO_PHONE_NUMBER;
 const client = twilio(accountSid, authToken);
 
 const sendMessage = (sessionKey, phoneNumber , name) => {
-    const messageBody = `Hello ${name} please let us know you location http://localhost:3000/getlocation/${sessionKey}`;
+    const messageBody = `Hello ${name} please let us know you location https://mediisist.in/getlocation/${sessionKey} \n\n\n Track ambulance location here: https://mediisist.in/tracklocation/${sessionKey}`;
 
     console.log(`http://localhost:3000/getlocation/${sessionKey}`);
     client.messages
@@ -26,40 +26,38 @@ const sendMessage = (sessionKey, phoneNumber , name) => {
 };
 
 // ============================twilio SMS ============================================ //
-*/
 
 
-// ============================twilio SMS ============================================ //
 
 
 
 // ============================Fast2SMS ============================================ //
-const sendMessage = async (sessionKey, phoneNumber, name) => {
-    try {
+// const sendMessage = async (sessionKey, phoneNumber, name) => {
+//     try {
 
-        console.log(`http://localhost:3000/getlocation/${sessionKey}`);
-        const data = {
-            "route": "q",
-            "message": `Hello ${name} please let us know you location https://mediisist.in/getlocation/${sessionKey}`,
-            "flash": 0,
-            "numbers": `${phoneNumber}`,
-        }
+//         console.log(`http://localhost:3000/getlocation/${sessionKey}`);
+//         const data = {
+//             "route": "q",
+//             "message": `Hello ${name} please let us know you location https://mediisist.in/getlocation/${sessionKey}`,
+//             "flash": 0,
+//             "numbers": `${phoneNumber}`,
+//         }
 
-        const res = await axios.post('https://www.fast2sms.com/dev/bulkV2', data, {
-            headers: {
-                "authorization": process.env.API_KEY,
-                "Content-Type": "application/json"
-            }
-        });
+//         const res = await axios.post('https://www.fast2sms.com/dev/bulkV2', data, {
+//             headers: {
+//                 "authorization": process.env.API_KEY,
+//                 "Content-Type": "application/json"
+//             }
+//         });
 
-        if(res.status == 200 || res.status == 201){
-            console.log("SMS Sent Sucessfully")
-        }
-    } catch (error) {
-        console.error(error.response.data);
-        console.error(`Failed to send message: ${error}`)
-    }
-}
+//         if(res.status == 200 || res.status == 201){
+//             console.log("SMS Sent Sucessfully")
+//         }
+//     } catch (error) {
+//         console.error(error.response.data);
+//         console.error(`Failed to send message: ${error}`)
+//     }
+// }
 
 // ============================Fast2SMS ============================================ //
 
