@@ -37,8 +37,8 @@ export const sentNotificationToAmbulancePartner = async ({ name, phoneNumber, la
 
   console.log(partner);
 
-  if (!support || support.length === 0) {
-    console.log("No support tokens found");
+  if (!partner || partner.length === 0) {
+    console.log("No partner tokens found");
     return 400;
   }
 
