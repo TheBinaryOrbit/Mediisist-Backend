@@ -12,7 +12,7 @@ import { timingRouter } from './Router/timingRouter.js';
 
 import { createServer } from 'http';
 import { initializeSocket } from './Socket/locationSocket.js';
-
+import { sentNotificationToAmbulancePartner } from './Utils/firebaseNotification.js';
 
 const PORT = process.env.PORT || 8000
 const app = express();
@@ -35,6 +35,10 @@ app.use(express.static('public'));
 
 app.get('/', (req, res) => {
   res.status(200).json({ message: "Har Har Mahadev" })
+})
+
+app.get('/getnotification', async (req, res) => {
+  sentNotificationToAmbulancePartner({ name: "John Doe", phoneNumber: "1234567890" });
 })
 
 

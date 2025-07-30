@@ -412,7 +412,7 @@ export const completeRideByCustomerSupport = async (req, res) => {
     });
 
 
-    sentNotificationToAmbulancePartner({ name: updatedRide.name, phoneNumber: updatedRide.phoneNumber , address: address })
+    sentNotificationToAmbulancePartner({ name: updatedRide.name, phoneNumber: updatedRide.phoneNumber })
 
     return res.status(200).json({
       message: "Ride Completed by customer support",

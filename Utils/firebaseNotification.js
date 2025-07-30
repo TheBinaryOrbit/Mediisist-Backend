@@ -32,7 +32,7 @@ export const sentNotificationToCallSupport = async ({ name, phoneNumber }) => {
 
 
 
-export const sentNotificationToAmbulancePartner = async ({ name, phoneNumber, lat = "28.752993", lng = "77.497431", address }) => {
+export const sentNotificationToAmbulancePartner = async ({ name, phoneNumber, lat = "28.752993", lng = "77.497431" }) => {
   const partner = await getAllAmbulancePartners()
 
   console.log(partner);
@@ -45,7 +45,7 @@ export const sentNotificationToAmbulancePartner = async ({ name, phoneNumber, la
   const message = {
     tokens: partner,
     data: {
-      "message": `{\"name\": \"${name}\", \"phoneNumber\": \"${phoneNumber}\"} \"address\": \"${address}\"`
+      "message": `{\"name\": \"${name}\", \"phoneNumber\": \"${phoneNumber}\"}"`
     },
   };
 
