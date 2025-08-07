@@ -5,6 +5,8 @@ export const updateTimingDetails = async (req, res) => {
     const { doctorId } = req.params;
     const { day, startTime, endTime, isAvailable, fee } = req.body;
 
+    console.log(req.body);
+    console.log("Updating timing details for doctor ID:", doctorId);
     try {
         if (isAvailable == true && (!day || !startTime || !endTime || !fee)) {
             return res.status(400).json({ error: "Day, start time, end time, and fee are required" });
@@ -26,7 +28,8 @@ export const updateTimingDetails = async (req, res) => {
                 data: {
                     startTime,
                     endTime,
-                    fee
+                    fee : Number(fee),
+                    isAvailable : true,
                 }
             });
         }
@@ -68,6 +71,42 @@ export const getTimingDetails = async (req, res) => {
         res.status(200).json(timings);
     } catch (error) {
         console.error("Error fetching timing details:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
+
+
+export const getAvailableTimings = async (req, res) => {
+    const { doctorId } = req.params;
+    try {
+
+        const availableTimings = await prisma.timings.findMany({
+            where: {
+                doctorId: Number(doctorId),
+                isAvailable: true
+            },
+            orderBy: {
+                day: 'asc'
+            }
+        });
+
+
+        const newAvailableTimings = availableTimings.map(timing => {
+            return {
+                id : timing.id,
+                key : timing.day.toLowerCase(),
+                label : timing.day.toUpperCase(),
+                startTime: timing.startTime,
+                endTime: timing.endTime,
+            };
+        });
+
+
+        // console.log("Available timings fetched:", newAvailableTimings);
+
+        res.status(200).json(newAvailableTimings);
+    } catch (error) {
+        console.error("Error fetching available timings:", error);
         res.status(500).json({ error: "Internal server error" });
     }
 };

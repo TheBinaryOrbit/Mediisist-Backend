@@ -5,15 +5,23 @@ export const addEducationDetail = async (req, res) => {
     const { doctorId } = req.params;
     const {courseName , universityName, yearOfPassing} = req.body;
 
+    console.log("Adding education detail for doctor ID:", doctorId);
+
+    // Validate input
+    if (!doctorId || !courseName || !universityName || !yearOfPassing) {
+        return res.status(400).json({ error: "All fields are required" });
+    }
+
     try {
         const newEducation = await prisma.education.create({
             data: {
                 courseName,
                 universityName,
-                yearOfPassing,
+                yearOfPassing : Number(yearOfPassing),
                 doctorId: Number(doctorId)
             }
         });
+
         res.status(201).json({ message: "Education detail added successfully", education: newEducation });
     } catch (error) {
         console.error("Error adding education detail:", error);
@@ -89,14 +97,15 @@ export const deleteEducationDetail = async (req, res) => {
 export const getEducationDetails = async (req, res) => {
     const { doctorId } = req.params;
 
+    console.log("Fetching education details for doctor ID:", doctorId);
+
     try {
         const educationDetails = await prisma.education.findMany({
             where: { doctorId: Number(doctorId) }
         });
 
-        if (educationDetails.length === 0) {
-            return res.status(404).json({ error: "No education details found for this doctor" });
-        }
+        console.log("Education details fetched:", educationDetails);
+
 
         res.status(200).json({ message: "Education details fetched successfully", educationDetails });
     } catch (error) {

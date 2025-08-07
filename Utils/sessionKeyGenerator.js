@@ -4,3 +4,5 @@ import { randomBytes } from 'crypto';
 export const generateSessionKey = () => {
   return randomBytes(16).toString('hex'); // 32-character unique string
 };
+
+

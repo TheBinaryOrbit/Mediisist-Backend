@@ -1,10 +1,11 @@
 import prisma from "../Utils/prismaClient.js";
 import { uploadDoctorImage } from "../Storage/doctor.js";
-import { generatePassword } from "../Utils/password.js";
+import { generatePassword, matchedPassword } from "../Utils/password.js";
 import deleteImage from "../Utils/deleteImage.js";
 import addTimingDetails from "../Utils/createTiming.js";
+import { sortDays } from "../Utils/SortDays.js";
 
-// Add a new Doctor
+
 export const addDoctor = async (req, res) => {
     uploadDoctorImage(req, res, async (err) => {
         try {
@@ -12,12 +13,16 @@ export const addDoctor = async (req, res) => {
                 return res.status(400).json({ error: err.message });
             }
             const imageUrl = req.files?.image ? req.files.image[0].filename : null;
-            const { fName, lName, displayName, phoneNumber, email, password, clinicName, clinicAddress, lat, lng } = req.body;
+            const { fName, lName, displayName, phoneNumber, email, password, clinicName, clinicAddress, lat, lng, specialization } = req.body;
 
             // Validate required fields
             if (!fName || !lName || !displayName || !phoneNumber || !email || !password) {
                 return res.status(400).json({ error: "All fields are required" });
             }
+
+            console.log("Received data:", {
+                fName, lName, displayName, phoneNumber, email, clinicName, clinicAddress, lat, lng, specialization, imageUrl
+            });
 
             // Hash password
             const hashedPassword = generatePassword(password);
@@ -35,6 +40,7 @@ export const addDoctor = async (req, res) => {
                     clinicAddress,
                     lat,
                     lng,
+                    specialization,
                     imageUrl: imageUrl ? `doctorimages/${imageUrl}` : null,
                 }
             });
@@ -101,17 +107,8 @@ export const getDoctorById = async (req, res) => {
                 email: true,
                 clinicName: true,
                 clinicAddress: true,
-                lat: true,
-                lng: true,
                 imageUrl: true,
-                timings: {
-                    select: {
-                        id: true,
-                        from: true,
-                        to: true,
-                        currentlyWorking: true
-                    }
-                }
+                specialization: true,
             }
         });
         if (!doctor) {
@@ -141,7 +138,7 @@ export const deleteDoctor = async (req, res) => {
 // update doctor
 export const updateDoctorDetails = async (req, res) => {
     const { id } = req.params;
-    const { fName, lName, displayName, phoneNumber, email} = req.body;
+    const { fName, lName, displayName, email } = req.body;
 
     try {
         const updatedDoctor = await prisma.doctor.update({
@@ -150,7 +147,6 @@ export const updateDoctorDetails = async (req, res) => {
                 fName,
                 lName,
                 displayName,
-                phoneNumber,
                 email
             }
         });
@@ -165,16 +161,14 @@ export const updateDoctorDetails = async (req, res) => {
 // update clinic details
 export const updateClinicDetails = async (req, res) => {
     const { id } = req.params;
-    const { clinicName, clinicAddress, lat, lng } = req.body;
+    const { clinicName, clinicAddress } = req.body;
 
     try {
         const updatedDoctor = await prisma.doctor.update({
             where: { id: Number(id) },
             data: {
                 clinicName,
-                clinicAddress,
-                lat,
-                lng
+                clinicAddress
             }
         });
         res.status(200).json({ message: "Clinic details updated successfully", doctor: updatedDoctor });
@@ -228,6 +222,8 @@ export const editProfileImage = async (req, res) => {
             const { id } = req.params;
             const imageUrl = req.files?.image ? req.files.image[0].filename : null;
 
+            console.log("Received image URL:", imageUrl);
+
             if (!imageUrl) {
                 return res.status(400).json({ error: "Image file is required" });
             }
@@ -236,7 +232,7 @@ export const editProfileImage = async (req, res) => {
             const doctor = await prisma.doctor.findUnique({ where: { id: Number(id) } });
 
             if (doctor?.imageUrl) {
-                const oldImagePath = `./public/${doctor.imageUrl}`;
+                const oldImagePath = `./public/doctorimages/${doctor.imageUrl}`;
                 deleteImage(oldImagePath);
             }
 
@@ -252,3 +248,109 @@ export const editProfileImage = async (req, res) => {
         }
     });
 }
+
+// login doctor
+export const loginDoctor = async (req, res) => {
+    const { phoneNumber, password } = req.body;
+    try {
+        const doctor = await prisma.doctor.findUnique({
+            where: { phoneNumber }
+
+        });
+
+        if (!doctor) {
+            return res.status(404).json({ error: "Doctor not found" });
+        }
+
+
+        if (!matchedPassword(password, doctor.password)) {
+            return res.status(400).json({ error: "Invalid password" });
+        }
+
+        res.status(200).json({
+            message: "Login successful", doctor: {
+                id: doctor.id,
+                fName: doctor.fName,
+                lName: doctor.lName,
+                displayName: doctor.displayName,
+                phoneNumber: doctor.phoneNumber,
+                email: doctor.email,
+                clinicName: doctor.clinicName,
+                clinicAddress: doctor.clinicAddress,
+                lat: doctor.lat,
+                lng: doctor.lng,
+                imageUrl: doctor.imageUrl,
+                specialization: doctor.specialization,
+            }
+        });
+    } catch (error) {
+        console.error("Error logging in doctor:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+}
+
+
+export const checkProfileCompletion = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const doctor = await prisma.doctor.findUnique({
+            where: { id: Number(id) },
+            select: {
+                isVerified: true,
+                experience: true,
+                education: true,
+                timings: {
+                    select: {
+                        day: true,
+                        isAvailable: true,
+                        _count: {
+                            select: {
+                                slots: true
+                            }
+                        },
+                        fee: true
+                    }
+                },
+                paymentMethod: true,
+            }
+        });
+
+        const response = {
+            isVerified: doctor.isVerified,
+            isEducationAdded: true,
+            isExperienceAdded: true,
+            isPaymentMethodAdded: true,
+        }
+
+        if (doctor.education.length === 0) {
+            response.isEducationAdded = false;
+        }
+        if (doctor.experience.length === 0) {
+            response.isExperienceAdded = false;
+        }
+
+        if (doctor.paymentMethod == null) {
+            response.isPaymentMethodAdded = false;
+        }
+
+        if (!doctor) {
+            return res.status(404).json({ error: "Doctor not found" });
+        }
+
+        res.status(200).json({
+            profileChecks: response,
+            timings: sortDays(
+                doctor.timings.map(timing => ({
+                    day: timing.day,
+                    isAvailable: timing.isAvailable,
+                    slotsCount: timing._count.slots,
+                    fee: timing.fee
+                }))
+            )
+        });
+    }
+    catch (error) {
+        console.error("Error checking profile completion:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};

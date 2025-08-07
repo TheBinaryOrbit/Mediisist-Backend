@@ -65,14 +65,15 @@ model ambulancePartner {
 }
 
 model doctor {
-  id          Int     @unique @default(autoincrement())
-  fName       String
-  lName       String
-  displayName String
-  phoneNumber String  @unique
-  email       String
-  password    String
-  imageUrl    String?
+  id             Int     @unique @default(autoincrement())
+  fName          String
+  lName          String
+  displayName    String
+  phoneNumber    String  @unique
+  email          String
+  password       String
+  imageUrl       String?
+  specialization String
 
   // verification details
   isVerified Boolean @default(false)
@@ -86,54 +87,148 @@ model doctor {
   lat String?
   lng String?
 
-  education  education[]
-  experience experience[]
-  timings    timings[]
+  education     education[]
+  experience    experience[]
+  timings       timings[]
+  paymentMethod paymentMethod?
+  appointment   appointment[]
 }
 
 model education {
-  id            Int    @unique @default(autoincrement())
-  courseName    String
-  university    String
-  yearofPassing Int
+  id             Int    @unique @default(autoincrement())
+  courseName     String
+  universityName String
+  yearOfPassing  Int
 
   doctorId Int
   doctor   doctor @relation(fields: [doctorId], references: [id])
 }
 
 model experience {
-  id               Int      @unique @default(autoincrement())
+  id               Int     @unique @default(autoincrement())
   title            String
   hospital         String
   employmentType   String
-  from             DateTime
-  to               DateTime
-  currentlyWorking Boolean  @default(false)
+  from             String
+  to               String?
+  currentlyWorking Boolean @default(false)
   doctorId         Int
-  doctor           doctor   @relation(fields: [doctorId], references: [id])
+  doctor           doctor  @relation(fields: [doctorId], references: [id])
 }
 
 model timings {
   id          Int     @unique @default(autoincrement())
   day         String
-  startTime   String  @default("10:00")
-  endTime     String  @default("17:00")
+  startTime   String? @default("10:00")
+  endTime     String? @default("17:00")
   isAvailable Boolean @default(true)
 
-  fee        Int     @default(0)
+  fee Int? @default(0)
 
-  doctorId    Int
-  doctor      doctor  @relation(fields: [doctorId], references: [id])
+  doctorId Int
+  doctor   doctor @relation(fields: [doctorId], references: [id])
 
-  slots       slots[]
+  slots slots[]
 }
 
+model slots {
+  id        Int    @unique @default(autoincrement())
+  startTime String @default("10:00")
+  endTime   String @default("17:00")
 
-model slots{
-  id         Int     @unique @default(autoincrement())
-  startTime  String  @default("10:00")
-  endTime    String  @default("17:00")
+  timingsId Int
+  timings   timings @relation(fields: [timingsId], references: [id])
 
-  timmingsId Int
-  timings    timings @relation(fields: [timmingsId], references: [id])
+  appointment appointment[]
+}
+
+model paymentMethod {
+  id            Int    @unique @default(autoincrement())
+  bankName      String
+  accountNumber String
+  ifscCode      String
+  bankeeName    String
+  doctorId      Int    @unique
+  doctor        doctor @relation(fields: [doctorId], references: [id])
+}
+
+model user {
+  id          Int    @unique @default(autoincrement())
+  fname       String
+  lname       String
+  phoneNumber String @unique
+  email       String @unique
+  age         Int
+  gender      Gender
+
+  appointment appointment[]
+  patient     patient[]
+}
+
+model appointment {
+  id                 Int    @unique @default(autoincrement())
+  patientFirstName   String
+  patientLastName    String
+  patientAge         Int
+  patientGender      Gender
+  patientPhoneNumber String @unique
+
+  // user details
+  userId   Int
+  bookedBy user @relation(fields: [userId], references: [id])
+
+  // doctor details
+  doctorId Int
+  doctor   doctor @relation(fields: [doctorId], references: [id])
+
+  Mode AppointmentMode
+
+  status Status @default(SCHEDULED)
+
+  // payment details
+  rpzOrderId String? @unique
+
+  // timing details
+  date   DateTime @default(now())
+  slotId Int
+  slot   slots    @relation(fields: [slotId], references: [id])
+
+  // additional details
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  // prescription details
+  prescriptionUrl String?
+}
+
+model patient {
+  id          Int    @unique @default(autoincrement())
+  fname       String
+  lname       String
+  phoneNumber String @unique
+  email       String @unique
+  age         Int
+  gender      Gender
+
+  userId      Int
+  user        user @relation(fields: [userId], references: [id])
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum AppointmentMode {
+  ONLINE
+  IN_CLINIC
+}
+
+enum Status {
+  SCHEDULED
+  ACCEPTED
+  REJECTED
+  IN_PROGRESS
+  COMPLETED
 }

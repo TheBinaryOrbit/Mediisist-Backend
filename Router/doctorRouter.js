@@ -7,7 +7,9 @@ import {
   updateDoctorDetails,
   updateClinicDetails,
   changePassword,
-  editProfileImage
+  editProfileImage,
+  loginDoctor,
+  checkProfileCompletion
 } from '../Controller/doctorController.js';
 
 export const doctorRouter = express.Router();
@@ -36,3 +38,7 @@ doctorRouter.put('/update/password/:id', changePassword);
 // Edit profile image
 doctorRouter.put('/update/profile-image/:id', editProfileImage);
 
+// doctor login
+doctorRouter.post('/login', loginDoctor);
+
+doctorRouter.get('/checkprofile/:id', checkProfileCompletion);

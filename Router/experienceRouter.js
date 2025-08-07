@@ -9,7 +9,7 @@ import express from 'express';
 export const experienceRouter = express.Router();
 
 // Add experience detail
-experienceRouter.post('add/:doctorId', addExperienceDetail);
+experienceRouter.post('/add/:doctorId', addExperienceDetail);
 
 // Update experience detail
 experienceRouter.put('/update/:experienceId/:doctorId', updateExperienceDetail);

@@ -5,6 +5,13 @@ export const addExperienceDetail = async (req, res) => {
     const { doctorId } = req.params;
     const { title, hospital, employmentType, from, to, currentlyWorking } = req.body;
 
+    console.log("Adding experience detail for doctor ID:", doctorId);
+
+    // Validate input
+    if (!doctorId || !title || !hospital || !employmentType || !from) {
+        return res.status(400).json({ error: "All fields are required" });
+    }
+
     try {
         const newExperience = await prisma.experience.create({
             data: {
@@ -97,6 +104,9 @@ export const getExperienceDetails = async (req, res) => {
             where: { doctorId: Number(doctorId) },
             orderBy: { from: 'desc' }
         });
+
+        console.log("Experience details fetched:", experiences);
+        
         res.status(200).json(experiences);
     } catch (error) {
         console.error("Error fetching experience details:", error);

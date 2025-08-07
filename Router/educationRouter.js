@@ -9,7 +9,7 @@ import {
 export const educationRouter = express.Router();
 
 // Add education detail
-educationRouter.post('add/:doctorId', addEducationDetail);
+educationRouter.post('/add/:doctorId', addEducationDetail);
 
 // Update education detail
 educationRouter.put('/update/:educationId', updateEducationDetail);
