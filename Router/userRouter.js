@@ -1,5 +1,5 @@
 import express from 'express';
-import { createUser, GetOTP , getUserById, updateUser, verifyOTP } from '../Controller/UserController.js';
+import { createUser, GetOTP , getUserById, updateUser, verifyOTP } from '../Controller/user/userController.js';
 
 export const userRouter = express.Router();
 

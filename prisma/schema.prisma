@@ -65,15 +65,18 @@ model ambulancePartner {
 }
 
 model doctor {
-  id             Int     @unique @default(autoincrement())
-  fName          String
-  lName          String
-  displayName    String
-  phoneNumber    String  @unique
-  email          String
-  password       String
-  imageUrl       String?
-  specialization String
+  id          Int     @unique @default(autoincrement())
+  fName       String
+  lName       String
+  displayName String
+  phoneNumber String  @unique
+  email       String
+  password    String
+  imageUrl    String?
+
+  // specialization
+  specializationId Int
+  specialization   specialization @relation(fields: [specializationId], references: [id])
 
   // verification details
   isVerified Boolean @default(false)
@@ -87,11 +90,15 @@ model doctor {
   lat String?
   lng String?
 
+  // wallet details
+  amount Float @default(0)
+
   education     education[]
   experience    experience[]
   timings       timings[]
   paymentMethod paymentMethod?
   appointment   appointment[]
+  withdraw      withdraw[]
 }
 
 model education {
@@ -150,6 +157,8 @@ model paymentMethod {
   bankeeName    String
   doctorId      Int    @unique
   doctor        doctor @relation(fields: [doctorId], references: [id])
+
+  withdraw withdraw[]
 }
 
 model user {
@@ -171,7 +180,7 @@ model appointment {
   patientLastName    String
   patientAge         Int
   patientGender      Gender
-  patientPhoneNumber String @unique
+  patientPhoneNumber String
 
   // user details
   userId   Int
@@ -181,17 +190,20 @@ model appointment {
   doctorId Int
   doctor   doctor @relation(fields: [doctorId], references: [id])
 
-  Mode AppointmentMode
+  mode AppointmentMode
 
   status Status @default(SCHEDULED)
 
   // payment details
-  rpzOrderId String? @unique
+  rpzOrderId         String? @unique
+  rpzRefundPaymentId String? @unique
+  rpzPaymentId       String? @unique
 
   // timing details
-  date   DateTime @default(now())
-  slotId Int
-  slot   slots    @relation(fields: [slotId], references: [id])
+  date          String
+  slotId        Int
+  slot          slots   @relation(fields: [slotId], references: [id])
+  isRescheduled Boolean @default(false)
 
   // additional details
   createdAt DateTime @default(now())
@@ -205,13 +217,50 @@ model patient {
   id          Int    @unique @default(autoincrement())
   fname       String
   lname       String
-  phoneNumber String @unique
-  email       String @unique
+  phoneNumber String
+  email       String
   age         Int
   gender      Gender
 
-  userId      Int
-  user        user @relation(fields: [userId], references: [id])
+  userId Int
+  user   user @relation(fields: [userId], references: [id])
+}
+
+model specialization {
+  id       Int    @unique @default(autoincrement())
+  key      String
+  label    String
+  imageUrl String
+
+  doctor   doctor[]
+  symptoms symptom[]
+}
+
+model symptom {
+  id       Int    @unique @default(autoincrement())
+  name     String
+  imageUrl String
+
+  specializationId Int
+  specialization   specialization @relation(fields: [specializationId], references: [id])
+}
+
+model withdraw {
+  id Int @unique @default(autoincrement())
+
+  // doctor details
+  doctorId Int
+  doctor   doctor @relation(fields: [doctorId], references: [id])
+
+  // amount details
+  amount Int
+  status withdrawStatus @default(PENDING)
+
+  // payment info
+  paymentMethodId Int
+  paymentMethod   paymentMethod @relation(fields: [paymentMethodId], references: [id])
+
+  createdAt DateTime @default(now())
 }
 
 enum Gender {
@@ -231,4 +280,11 @@ enum Status {
   REJECTED
   IN_PROGRESS
   COMPLETED
+  CANCELLED
+}
+
+enum withdrawStatus {
+  PENDING
+  SUCCESS
+  REJECTED
 }

@@ -1,9 +1,9 @@
-import prisma from "../Utils/prismaClient.js";
-import { uploadDoctorImage } from "../Storage/doctor.js";
-import { generatePassword, matchedPassword } from "../Utils/password.js";
-import deleteImage from "../Utils/deleteImage.js";
-import addTimingDetails from "../Utils/createTiming.js";
-import { sortDays } from "../Utils/SortDays.js";
+import prisma from "../../Utils/prismaClient.js";
+import { uploadDoctorImage } from "../../Storage/doctor.js";
+import { generatePassword, matchedPassword } from "../../Utils/password.js";
+import deleteImage from "../../Utils/deleteImage.js";
+import addTimingDetails from "../../Utils/createTiming.js";
+import { sortDays } from "../../Utils/SortDays.js";
 
 
 export const addDoctor = async (req, res) => {
@@ -13,7 +13,7 @@ export const addDoctor = async (req, res) => {
                 return res.status(400).json({ error: err.message });
             }
             const imageUrl = req.files?.image ? req.files.image[0].filename : null;
-            const { fName, lName, displayName, phoneNumber, email, password, clinicName, clinicAddress, lat, lng, specialization } = req.body;
+            const { fName, lName, displayName, phoneNumber, email, password, clinicName, clinicAddress, lat, lng, specializationId } = req.body;
 
             // Validate required fields
             if (!fName || !lName || !displayName || !phoneNumber || !email || !password) {
@@ -21,7 +21,7 @@ export const addDoctor = async (req, res) => {
             }
 
             console.log("Received data:", {
-                fName, lName, displayName, phoneNumber, email, clinicName, clinicAddress, lat, lng, specialization, imageUrl
+                fName, lName, displayName, phoneNumber, email, clinicName, clinicAddress, lat, lng, specializationId, imageUrl
             });
 
             // Hash password
@@ -40,10 +40,13 @@ export const addDoctor = async (req, res) => {
                     clinicAddress,
                     lat,
                     lng,
-                    specialization,
+                    specializationId: Number(specializationId),
                     imageUrl: imageUrl ? `doctorimages/${imageUrl}` : null,
                 }
             });
+
+
+            console.log("New doctor created:", newDoctor);
 
             // create timings for the doctor
             try {
@@ -69,12 +72,19 @@ export const addDoctor = async (req, res) => {
 
 // get all doctors)
 export const getAllDoctors = async (req, res) => {
+
+    const conditions = {};
+
+    if (req.query.specializationId) {
+        conditions.specializationId = Number(req.query.specializationId);
+    }
+
+
     try {
-        const doctors = await prisma.doctor.findMany({
+        let doctors = await prisma.doctor.findMany({
+            where: conditions,
             select: {
                 id: true,
-                fName: true,
-                lName: true,
                 displayName: true,
                 phoneNumber: true,
                 email: true,
@@ -83,8 +93,75 @@ export const getAllDoctors = async (req, res) => {
                 lat: true,
                 lng: true,
                 imageUrl: true,
+                specialization: {
+                    select: {
+                        id: true,
+                        key: true,
+                        label: true,
+                    }
+                },
+                timings: {
+                    select: {
+                        day: true,
+                        isAvailable: true,
+                        fee: true,
+                    }
+                },
+                experience: true,
             }
         });
+
+
+
+        const currentYear = new Date().getFullYear();
+
+        doctors.forEach(doctor => {
+            // Minimum starting fee from available timings
+            doctor.startingFee = Math.min(
+                ...doctor.timings.map(t => t.isAvailable ? t.fee : Infinity)
+            );
+
+            // Total experience calculation
+            doctor.totalExperience = doctor.experience.reduce((acc, exp) => {
+                const fromYear = parseInt(exp.from, 10);
+                const toYear = exp.currentlyWorking ? currentYear : parseInt(exp.to, 10);
+                return acc + (toYear - fromYear);
+            }, 0);
+        });
+
+
+
+
+        if (req.query.order === "asc") {
+            // lowest to highest according to starting fee
+            doctors.sort((a, b) => a.startingFee - b.startingFee);
+        }
+
+        if (req.query.order === "desc") {
+            // highest to lowest according to starting fee
+            doctors.sort((a, b) => b.startingFee - a.startingFee);
+        }
+
+        // available today or not by day in capitalize
+        const today = new Date().toLocaleString('en-US', { weekday: 'long' });
+
+        console.log("Today's availability:", today);
+
+        if (req.query.availableToday === "true") {
+            doctors = doctors.filter(doctor => {
+                const timing = doctor.timings.find(t => t.day === today);
+                return timing ? timing.isAvailable : false;
+            });
+        }
+
+        // remove the timings
+        doctors = doctors.map(doctor => {
+            delete doctor.timings;
+            delete doctor.experience;
+            return doctor;
+        });
+
+
         res.status(200).json(doctors);
     } catch (error) {
         console.error("Error fetching doctors:", error);
@@ -109,6 +186,9 @@ export const getDoctorById = async (req, res) => {
                 clinicAddress: true,
                 imageUrl: true,
                 specialization: true,
+                experience: true,
+                education: true,
+                timings: true,
             }
         });
         if (!doctor) {
@@ -148,6 +228,9 @@ export const updateDoctorDetails = async (req, res) => {
                 lName,
                 displayName,
                 email
+            },
+            include: {
+                specialization: true
             }
         });
         res.status(200).json({ message: "Doctor details updated successfully", doctor: updatedDoctor });
@@ -254,7 +337,10 @@ export const loginDoctor = async (req, res) => {
     const { phoneNumber, password } = req.body;
     try {
         const doctor = await prisma.doctor.findUnique({
-            where: { phoneNumber }
+            where: { phoneNumber },
+            include: {
+                specialization: true
+            }
 
         });
 
@@ -280,7 +366,7 @@ export const loginDoctor = async (req, res) => {
                 lat: doctor.lat,
                 lng: doctor.lng,
                 imageUrl: doctor.imageUrl,
-                specialization: doctor.specialization,
+                specialization: doctor.specialization
             }
         });
     } catch (error) {
@@ -292,6 +378,8 @@ export const loginDoctor = async (req, res) => {
 
 export const checkProfileCompletion = async (req, res) => {
     const { id } = req.params;
+
+    console.log("Doctor ID:", id);
     try {
         const doctor = await prisma.doctor.findUnique({
             where: { id: Number(id) },
@@ -315,21 +403,23 @@ export const checkProfileCompletion = async (req, res) => {
             }
         });
 
+        console.log("Doctor profile data:", doctor);
+
         const response = {
-            isVerified: doctor.isVerified,
+            isVerified: doctor?.isVerified,
             isEducationAdded: true,
             isExperienceAdded: true,
             isPaymentMethodAdded: true,
         }
 
-        if (doctor.education.length === 0) {
+        if (doctor?.education.length === 0 || doctor?.education == undefined) {
             response.isEducationAdded = false;
         }
-        if (doctor.experience.length === 0) {
+        if (doctor?.experience.length === 0 || doctor?.experience == undefined) {
             response.isExperienceAdded = false;
         }
 
-        if (doctor.paymentMethod == null) {
+        if (doctor?.paymentMethod == null) {
             response.isPaymentMethodAdded = false;
         }
 
@@ -354,3 +444,46 @@ export const checkProfileCompletion = async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 };
+
+
+export const getDoctorAmountById = async (req, res) => {
+    const { id } = req.params;
+
+    console.log("Fetching amount for doctor ID:", id);
+    try {
+        const doctor = await prisma.doctor.findUnique({
+            where: { id: Number(id) },
+            select: {
+                amount: true
+            }
+        });
+
+
+        const history = await prisma.withdraw.findMany({
+            where: { doctorId: Number(id) },
+            orderBy: {
+                createdAt: 'desc'
+            }
+        });
+
+        
+
+        if (!doctor) {
+            return res.status(404).json({ error: "Doctor not found" });
+        }
+
+        console.log("Doctor amount:", { amount: doctor.amount , history });
+
+        
+        res.status(200).json({
+            amount : doctor.amount,
+            history
+        });
+    } catch (error) {
+        console.error("Error fetching doctor:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+};
+
+
+

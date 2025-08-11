@@ -9,8 +9,9 @@ import {
   changePassword,
   editProfileImage,
   loginDoctor,
-  checkProfileCompletion
-} from '../Controller/doctorController.js';
+  checkProfileCompletion,
+  getDoctorAmountById
+} from '../Controller/doctor/doctorController.js';
 
 export const doctorRouter = express.Router();
 
@@ -42,3 +43,6 @@ doctorRouter.put('/update/profile-image/:id', editProfileImage);
 doctorRouter.post('/login', loginDoctor);
 
 doctorRouter.get('/checkprofile/:id', checkProfileCompletion);
+
+
+doctorRouter.get('/get/wallet/:id', getDoctorAmountById);

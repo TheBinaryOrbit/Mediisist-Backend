@@ -6,7 +6,7 @@ import { addCustomerSupport ,
     toggleCustomerSupportStatus ,
     UpdatePassword ,
     customerSupportLogin
- } from "../Controller/customerSupportController.js";
+ } from "../Controller/ambulance/customerSupportController.js";
 
 
 export const customerSupportRouter =  express.Router();

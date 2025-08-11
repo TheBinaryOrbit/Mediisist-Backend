@@ -1,7 +1,7 @@
-import { generatePassword, matchedPassword } from "../Utils/password.js";
-import prisma from "../Utils/prismaClient.js";
-import { uploadAmbulancePartnerImage } from "../Storage/ambulancePartner.js";
-import deleteImage from "../Utils/deleteImage.js";
+import { generatePassword, matchedPassword } from "../../Utils/password.js";
+import prisma from "../../Utils/prismaClient.js";
+import { uploadAmbulancePartnerImage } from "../../Storage/ambulancePartner.js";
+import deleteImage from "../../Utils/deleteImage.js";
 
 
 export const addAmbulancePartner = (req, res) => {

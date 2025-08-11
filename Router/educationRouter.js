@@ -4,7 +4,7 @@ import {
   updateEducationDetail,
   deleteEducationDetail,
   getEducationDetails
-} from '../Controller/educationController.js';
+} from '../Controller/doctor/educationController.js';
 
 export const educationRouter = express.Router();
 

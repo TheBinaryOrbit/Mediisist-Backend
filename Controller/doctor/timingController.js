@@ -1,4 +1,4 @@
-import prisma from "../Utils/prismaClient.js";
+import prisma from "../../Utils/prismaClient.js";
 
 // updatetiming details of a doctor
 export const updateTimingDetails = async (req, res) => {

@@ -12,8 +12,10 @@ import { timingRouter } from './Router/timingRouter.js';
 import { paymentMethodRouter } from './Router/PaymentMethodRouter.js';
 import { userRouter } from './Router/UserRouter.js';
 import { patientRouter } from './Router/patientRouter.js';
-
-
+import { specializationRouter } from './Router/specializationRouter.js';
+import { symptomRouter } from './Router/symptomRouter.js';
+import { appointmentRouter } from './Router/appointmentRouter.js';
+import { withdrawRouter } from './Router/withdrawRouter.js';
 import { createServer } from 'http';
 import { initializeSocket } from './Socket/locationSocket.js';
 import { sentNotificationToAmbulancePartner } from './Utils/firebaseNotification.js';
@@ -59,6 +61,10 @@ app.use('/api/v1/timing', timingRouter);
 app.use('/api/v1/payment', paymentMethodRouter);
 app.use('/api/v1/user' , userRouter);
 app.use('/api/v1/patient', patientRouter);
+app.use('/api/v1/specialization', specializationRouter);
+app.use('/api/v1/symptom', symptomRouter);
+app.use('/api/v1/appointment', appointmentRouter);
+app.use('/api/v1/withdraw', withdrawRouter);
 
 
 server.listen(PORT, () => {

@@ -1,5 +1,5 @@
-import prisma from "../Utils/prismaClient.js";
-import { sendOTP , verifyOTPWithPhoneNumber } from "../Utils/OTP.JS";
+import prisma from "../../Utils/prismaClient.js";
+import { sendOTP , verifyOTPWithPhoneNumber } from "../../Utils/otp.js";
 
 
 export const GetOTP = async (req, res) => {
@@ -94,7 +94,7 @@ export const createUser = async (req, res) => {
                 lname,
                 phoneNumber,
                 email,
-                age,
+                age : Number(age),
                 gender
             }
         });
@@ -118,20 +118,21 @@ export const createUser = async (req, res) => {
 export const updateUser = async (req, res) => {
     try {
         const { id } = req.params;
-        const { fname, lname, phoneNumber, email , age , gender} = req.body;
+        const { fname, lname, email , age , gender} = req.body;
 
-        if (!fname || !lname || !phoneNumber || !email || !age || !gender) {
+
+        console.log("Updating user:", { id, fname, lname, email, age, gender });
+        if (!fname || !lname  || !email || !age || !gender) {
             return res.status(400).json({ error: "All fields (fname, lname, phoneNumber, email, age, gender) are required." });
         }
 
         const updatedUser = await prisma.user.update({
-            where: { id: id },
+            where: { id: +id },
             data: {
                 fname,
                 lname,
-                phoneNumber,
                 email,
-                age,
+                age: Number(age),
                 gender
             }
         });
@@ -155,7 +156,7 @@ export const getUserById = async (req, res) => {
         }
 
         const user = await prisma.user.findUnique({
-            where: { id: id },
+            where: { id: +id },
             select: {
                 id: true,
                 fname: true,

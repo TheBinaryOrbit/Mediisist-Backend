@@ -2,7 +2,7 @@ import {
   updateTimingDetails,
   getTimingDetails,
   getAvailableTimings
-} from '../Controller/timingController.js';
+} from '../Controller/doctor/timingController.js';
 import express from 'express';
 
 export const timingRouter = express.Router();

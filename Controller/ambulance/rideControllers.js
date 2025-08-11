@@ -1,7 +1,7 @@
-import prisma from "../Utils/prismaClient.js";
-import { generateSessionKey } from '../Utils/sessionKeyGenerator.js';
-import sendMessage from "../Utils/SendMessage.js";
-import { sentNotificationToCallSupport, sentNotificationToAmbulancePartner } from "../Utils/firebaseNotification.js";
+import prisma from "../../Utils/prismaClient.js";
+import { generateSessionKey } from '../../Utils/sessionKeyGenerator.js';
+import sendMessage from "../../Utils/SendMessage.js";
+import { sentNotificationToCallSupport, sentNotificationToAmbulancePartner } from "../../Utils/firebaseNotification.js";
 
 
 export const addRide = async (req, res) => {
@@ -55,6 +55,9 @@ export const addRide = async (req, res) => {
     await sendMessage(newRide.sessionKey, phoneNumber, name);
     sentNotificationToCallSupport({ name: name, phoneNumber: phoneNumber })
 
+
+    
+    console.warn("New ride created:");  
     return res.status(201).json({
       message: "Ride created successfully",
       ride: newRide

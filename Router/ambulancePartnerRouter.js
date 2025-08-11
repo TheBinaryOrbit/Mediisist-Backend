@@ -7,7 +7,7 @@ import {
     toggleAmbulancePartnerStatus , 
     updateAmbulancePartnerPassword , 
     ambulancePartnerLogin
-} from '../Controller/ambulancePartnerController.js';
+} from '../Controller/ambulance/ambulancePartnerController.js';
 export const ambulanceRouter =  express.Router();
 
 // Create

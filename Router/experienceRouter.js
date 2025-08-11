@@ -3,7 +3,7 @@ import {
     updateExperienceDetail,
     deleteExperienceDetail,
     getExperienceDetails
-} from '../Controller/experienceController.js';
+} from '../Controller/doctor/experienceController.js';
 import express from 'express';
 
 export const experienceRouter = express.Router();

@@ -1,5 +1,5 @@
 import express from 'express';
-import { addPaymentMethod , getPaymentMethodByDoctorId } from '../Controller/paymentMethodController.js';
+import { addPaymentMethod , getPaymentMethodByDoctorId } from '../Controller/doctor/paymentMethodController.js';
 
 export const paymentMethodRouter = express.Router();
 

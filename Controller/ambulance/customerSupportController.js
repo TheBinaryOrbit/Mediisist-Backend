@@ -1,7 +1,7 @@
-import { generatePassword, matchedPassword } from "../Utils/password.js";
-import prisma from "../Utils/prismaClient.js";
-import { uploadCallSupportImage } from "../Storage/callSupport.js";
-import deleteImage from "../Utils/deleteImage.js";
+import { generatePassword, matchedPassword } from "../../Utils/password.js";
+import prisma from "../../Utils/prismaClient.js";
+import { uploadCallSupportImage } from "../../Storage/callSupport.js";
+import deleteImage from "../../Utils/deleteImage.js";
 
 // Add a new Customer Support
 export const addCustomerSupport = async (req, res) => {

@@ -1,4 +1,4 @@
-import prisma from "../Utils/prismaClient";
+import prisma from "../../Utils/prismaClient.js";
 
 export const addPatientDetail = async (req, res) => {
     const { fname, lname, phoneNumber, email, age , gender , userId } = req.body;
@@ -6,6 +6,8 @@ export const addPatientDetail = async (req, res) => {
     if (!fname || !lname || !phoneNumber || !email || !age || !gender || !userId) {
         return res.status(400).json({ error: "All fields are required" });
     }
+
+    console.log("Adding patient details:", { fname, lname, phoneNumber, email, age, gender, userId });
 
     try {
         const newPatient = await prisma.patient.create({
@@ -46,6 +48,8 @@ export const updatePatientDetail = async (req, res) => {
                 gender
             }
         });
+
+        
         res.status(200).json(updatedPatient);
     } catch (error) {
         console.error("Error updating patient details:", error);
@@ -77,6 +81,8 @@ export const deletePatientDetail = async (req, res) => {
 
 export const getPatientByUserId = async (req, res) => {
     const { userId } = req.params;
+
+    console.log("Fetching patients for user ID:", userId);
     if (!userId) {
         return res.status(400).json({ error: "User ID is required" });
     }
@@ -93,6 +99,8 @@ export const getPatientByUserId = async (req, res) => {
                 gender: true
             }
         });
+
+        console.log("Patients fetched:", patients);
         res.status(200).json(patients);
     } catch (error) {
         console.error("Error fetching patients by user ID:", error);
